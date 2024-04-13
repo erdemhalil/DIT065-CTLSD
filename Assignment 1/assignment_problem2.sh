@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # CPU Information
-cpu_model=$(lscpu | grep 'Model name:' | awk -F ': ' '{print $2}' | xargs)
-cpu_frequency=$(grep "model name" /proc/cpuinfo | head -n 1 | awk -F ': ' '{print $2}')
+cpu_model=$(grep "model name" /proc/cpuinfo | head -n 1 | awk -F ': ' '{print $2}')
+cpu_frequency=$(grep "cpu MHz" /proc/cpuinfo | sort -nr | head -n 1 | awk -F ': ' '{print $2}' | xargs)
 cpu_sockets=$(lscpu | grep 'Socket(s):' | awk -F ': ' '{print $2}' | xargs)
 cpu_cores_per_socket=$(lscpu | grep 'Core(s) per socket:' | awk -F ': ' '{print $2}' | xargs)
 cpu_total_cores=$((cpu_cores_per_socket * cpu_sockets))
