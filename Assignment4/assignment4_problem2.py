@@ -51,7 +51,7 @@ def extract_account(line):
 # Define a function to extract the invalid account
 def extract_invalid_account(line):
     # Find the string between "user" and "from" as the account
-    start_index = line.find("user") + len("user") + 1
+    start_index = line.find("invalid user") + len("invalid user") + 1
     end_index = line.find("from")
     return line[start_index:end_index].strip()
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'SSH Log Analysis.')
     parser.add_argument('-w','--num-workers',default=1,type=int,
                             help = 'Number of workers')
-    parser.add_argument('filename',type=str,help='Input filename')
+    parser.add_argument('filename',default="SSH.log",type=str,help='Input filename')
     args = parser.parse_args()
 
     # start = time.time()
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     # Filter the lines that contains the longin information
     accepted_lines = lines.filter(lambda line: "Accepted password for" in line)
     failed_lines = lines.filter(lambda line: "Failed password for" in line)
-    invalidf_user_lines = lines.filter(lambda line: "for invalid user" in line)
+    invalidf_user_lines = lines.filter(lambda line: "Failed password for invalid user" in line)
 
     # Parse date, login results, account number, IPs and invalid accounts
     dates_accepted = accepted_lines.map(extract_date)
@@ -101,6 +101,7 @@ if __name__ == '__main__':
     # print("Account:", accounts_failed.collect())
     # print("IP:", ips_failed.collect())
     # print("Invalid users:", invalid_accounts_failed.collect())
+    # print("Invalid users login:", invalid_accounts_failed_attempts.collect())
 
 #----------Subtask: problem(a)---------- 
     # Combine successful and unsuccessful login attempts for each user account
