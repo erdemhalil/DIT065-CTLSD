@@ -65,13 +65,12 @@ def extract_ip(line):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'SSH Log Analysis.')
-    parser.add_argument('-w','--num-workers',default=1,type=int,
-                            help = 'Number of workers')
-    parser.add_argument('filename',default="SSH.log",type=str,help='Input filename')
+    parser.add_argument('-w','--workers',default=1,type=int, help = 'Number of workers')
+    parser.add_argument('-f','--filename',default="SSH.log",type=str,help='Input filename')
     args = parser.parse_args()
 
     # start = time.time()
-    sc = SparkContext(master = f'local[{args.num_workers}]')
+    sc = SparkContext(master = f'local[{args.workers}]')
 
     lines = sc.textFile(args.filename)
     
