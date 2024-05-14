@@ -31,8 +31,10 @@ def normalize(X: npt.NDArray[np.float64])->npt.NDArray[np.float64]:
     
     Implement this function using array operations! No loops allowed.
     """
-    raise NotImplementedError()
-    
+    # raise NotImplementedError()
+    norms = np.linalg.norm(X, axis=1, keepdims=True)
+    return X / norms
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

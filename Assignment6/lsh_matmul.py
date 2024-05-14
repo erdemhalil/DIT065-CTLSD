@@ -31,7 +31,8 @@ def normalize(X: npt.NDArray[np.float64])->npt.NDArray[np.float64]:
     
     Implement this function using array operations! No loops allowed.
     """
-    raise NotImplementedError()
+    norms = np.linalg.norm(X, axis=1, keepdims=True)
+    return X / norms
 
 def construct_queries(queries_fn: str, word_to_idx: Dict[str,int],
                           X: npt.NDArray[np.float64]) -> \
@@ -48,6 +49,7 @@ def construct_queries(queries_fn: str, word_to_idx: Dict[str,int],
         Q[i,:] = X[word_to_idx[queries[i]],:]
     return (Q,queries)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset', help='Glove dataset filename',
@@ -57,22 +59,21 @@ if __name__ == '__main__':
     
     (word_to_idx, idx_to_word, X) = load_glove(args.dataset)
 
-
     X = normalize(X)
 
     (Q,queries) = construct_queries(args.queries, word_to_idx, X)
 
     t1 = time.time()
 
-    raise NotImplementedError()
+    # Compute nearest neighbors
+    similarities = np.dot(Q, X.T)
     
     t2 = time.time()
-
-    raise NotImplementedError()
 
     # Compute here I such that I[i,:] contains the indices of the nearest
     # neighbors of the word i in ascending order.
     # Naturally, I[i,-1] should then be the index of the word itself.
+    I = np.argsort(similarities, axis=1)[:, -4:]
 
     t3 = time.time()
     

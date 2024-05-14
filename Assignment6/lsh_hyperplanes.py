@@ -31,7 +31,8 @@ def normalize(X: npt.NDArray[np.float64])->npt.NDArray[np.float64]:
     
     Implement this function using array operations! No loops allowed.
     """
-    raise NotImplementedError()
+    norms = np.linalg.norm(X, axis=1, keepdims=True)
+    return X / norms
 
 def construct_queries(queries_fn: str, word_to_idx: Dict[str,int],
                           X: npt.NDArray[np.float64]) -> \
@@ -63,6 +64,7 @@ class RandomHyperplanes:
         """
         self._d = d
         self._seed = seed
+        self.R = None
 
     def fit(self, X: npt.NDArray[np.float64])->None:
         """
@@ -71,13 +73,17 @@ class RandomHyperplanes:
         columns) of X
         """
         rng = np.random.default_rng(self._seed)
-        raise NotImplementedError()
+        d = X.shape[1]
+        self.R = rng.standard_normal((self._d, d))
+        self.R /= np.linalg.norm(self.R, axis=1, keepdims=True)
 
     def transform(self, X: npt.NDArray[np.float64])->npt.NDArray[np.uint8]:
         """
         Project the rows of X into binary vectors
         """
-        raise NotImplementedError()
+        X_prime = np.dot(X, self.R.T)
+        X_binary = (X_prime > 0).astype(np.uint8)
+        return X_binary
 
     def fit_transform(self, X: npt.NDArray[np.float64])->npt.NDArray[np.uint8]:
         """
