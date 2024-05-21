@@ -5,6 +5,7 @@ import csv
 import sys
 import time
 import cupy as cp
+from pylibraft.neighbors.brute_force import knn
 
 def linear_scan(X, Q, b = None):
     """
@@ -19,6 +20,10 @@ def linear_scan(X, Q, b = None):
     m = Q.shape[0]
     I = cp.zeros(m, dtype=cp.int64)
     
+    # Transfer data to GPU
+    X_gpu = cp.asarray(X)
+    Q_gpu = cp.asarray(Q)
+    
     if b is None:
         b = m
     
@@ -29,12 +34,18 @@ def linear_scan(X, Q, b = None):
         end = min((batch_idx + 1) * b, m)
         Q_batch = Q[start:end, :]
         
-        # Compute the differences and the distances
-        D = Q_batch[:, cp.newaxis, :] - X[cp.newaxis, :, :]
-        distances = cp.linalg.norm(D, axis=2)
-        
-        # Find the indices of the minimum distances
-        I[start:end] = cp.argmin(distances, axis=1)
+        # Perform kNN search for the batch
+        distances, indices = knn(X_gpu, Q_batch, k=1)
+
+        # Convert indices to a NumPy array before slicing
+        indices_np = cp.asnumpy(indices)
+
+        # Convert indices_np[:, 0] back to a CuPy array
+        indices_cp = cp.asarray(indices_np[:, 0])
+
+        # Update global indices
+        I[start:end] = indices_cp
+
     
     return I
 
@@ -65,7 +76,7 @@ def load_queries(fn):
     """
     Loads the m*d array of query vectors from the file
     """
-    return cp.loadtxt(fn, delimiter = ' ', dtype = np.float32)
+    return np.loadtxt(fn, delimiter = ' ', dtype = np.float32)
 
 def load_query_labels(fn):
     """
