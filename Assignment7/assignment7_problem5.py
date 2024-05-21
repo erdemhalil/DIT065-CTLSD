@@ -34,18 +34,12 @@ def linear_scan(X, Q, b = None):
         end = min((batch_idx + 1) * b, m)
         Q_batch = Q[start:end, :]
         
-        # Perform kNN search for the batch
+        # Perform knn search for the batch
         distances, indices = knn(X_gpu, Q_batch, k=1)
-
-        # Convert indices to a NumPy array before slicing
         indices_np = cp.asnumpy(indices)
 
-        # Convert indices_np[:, 0] back to a CuPy array
-        indices_cp = cp.asarray(indices_np[:, 0])
-
         # Update global indices
-        I[start:end] = indices_cp
-
+        I[start:end] = cp.asarray(indices_np[:, 0])
     
     return I
 
